@@ -24,10 +24,12 @@ app.listen(PORT, () => {
 const {
   consultarRoommates
 //   insertar,
-//   consultar,
-//   eliminar,
-//   editar,
 } = require("./roommates.js");
+
+const {
+  ingresarGastos
+//   editar,
+} = require("./gastos.js");
 
 //--------------------------------------------------------------------------------------
 //Ruta GET para mostrar el index
@@ -85,43 +87,31 @@ app.get("/roommates", async (req, res) => {
     const roommatesData = await consultarRoommates();
     // console.log("Respuesta de roommatesData: ", roommatesData);
     // console.log( "Respuesta de roommatesData.roommates: ", roommatesData.roommates);
-    res.json(roommatesData);
+    res.status(200).json(roommatesData);
   } catch (error) {
     // console.log("Error: ", error);
-    console.log("Error del get roommates: ", error.message);
-    res.status(500).send("Error interno del servidor: ", error);
+    console.log("Error Ruta Get Roommates: ", error.message);
+    res.status(500).send("Error interno del servidor: ", error.message);
   }
 });
 
 //--------------------------------------------------------------------------------------
 //Ruta para ingresar gastos, obteniendo datos del payload (body)
 app.post("/gasto", async (req, res) => {
-  //lee las propiedades del payload que recibe realizando destructuring
-  const { roommate, descripcion, monto } = req.body;
-  // console.log('Roommate:', roommate);
-  // console.log('Descripción:', descripcion);
-  // console.log('Monto:', monto);
-  //crear una variable usuario con los valores obtenidos del destructuring
-  const gasto = {
-    id: uuidv4().slice(30),
-    roommate,
-    descripcion,
-    monto,
-    fecha: new Date(),
-    // new Date(timestamp);
-  };
-  console.log("gasto: ", gasto); //imprime por consola la data obtenida
+  try {
+    //lee las propiedades del payload que recibe realizando destructuring
+    const { roommate, descripcion, monto } = req.body;
 
-  //ingresar el gasto al arreglo gastos
-  const { gastos } = JSON.parse(fs.readFileSync("./data/gastos.json", "utf8"));
+    // Llama a la función ingresarGastos para agregar el nuevo gasto
+    const gastosActualizados = await ingresarGastos(roommate, descripcion, monto);
 
-  gastos.push(gasto);
-  console.log("gastos, arreglo: ", gastos); //imprime por consola la data obtenida
+    // Envía una respuesta JSON con los gastos actualizados
+    res.json({ gastos: gastosActualizados });
+  } catch (error) {
+    console.error("Error al ingresar gasto:", error);
+    res.status(500).json({ error: "Error interno del servidor al ingresar el gasto" });
+  }
 
-  //sobreescribe el archivo gastos.json con el nuevo gasto
-  fs.writeFileSync("./data/gastos.json", JSON.stringify({ gastos }));
-
-  res.json({ gastos });
 });
 
 //--------------------------------------------------------------------------------------
