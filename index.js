@@ -26,7 +26,7 @@ const {
   //   insertar,
 } = require("./roommates.js");
 
-const { ingresarGastos, listarGastos } = require("./gastos.js");
+const { ingresarGastos, listarGastos, eliminarGasto } = require("./gastos.js");
 
 //--------------------------------------------------------------------------------------
 //Ruta GET para mostrar el index
@@ -136,39 +136,15 @@ app.get("/gastos", async (req, res) => {
 app.delete("/gasto", async (req, res) => {
   try {
     const { id } = req.query;
-    // const resultado = await eliminar(id);
     console.log("id de gasto a eliminar: ", id);
 
-    //lee la lista de gastos, la filtra y luego la vuelve a escribir para persistencia de información
-    const gastosJSON = JSON.parse(
-      fs.readFileSync("./data/gastos.json", "utf8")
-    );
-    console.log("En eliminar, la lista de gastos es: ", gastosJSON);
-    // Filtrar la lista de gastos para eliminar el gasto con el ID especificado
-    const gastosFiltrados = gastosJSON.gastos.filter((g) => g.id !== id);
-    fs.writeFileSync(
-      "./data/gastos.json",
-      JSON.stringify({ gastos: gastosFiltrados })
-    ); // Sobrescribir el archivo gastos.json con la lista filtrada de gastos
-
-    console.log(
-      "En eliminar, cuantos gastos son antes ",
-      gastosJSON.gastos.length
-    );
-    console.log("En eliminar, la nueva lista es: ", gastosFiltrados);
-    console.log(
-      "En eliminar, cuantos gastos son ahora ",
-      gastosFiltrados.length
-    );
-    console.log("gasto eliminado: ", g);
-
+    // Llama a la función eliminarGasto para eliminar el gasto con el ID especificado, deposita el resultado en la variable
+    const gastosFiltrados = await eliminarGasto(id);
     res.json(gastosFiltrados);
-    // res.status(200).send(registros);
-    //   res.status(200).json(registros);
+
   } catch (error) {
-    // console.log("Error: ", error);
-    console.log("Error: ", error.message);
-    res.status(500).send(error);
+    console.error("Error al eliminar el gasto:", error);
+    res.status(500).json({ error: "Error interno del servidor al eliminar el gasto" });
   }
 });
 

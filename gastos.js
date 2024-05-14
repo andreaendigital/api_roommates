@@ -33,9 +33,29 @@ async function listarGastos() {
         // console.log("Respuesta de gastosData: ", gastosData);
         // console.log("Respuesta de gastosData.gastos: ", gastosData.gastos);
     return gastosData;
-  }
+}
 
 
+async function eliminarGasto(id) {
+    //lee la lista de gastos, filtra la lista de gastos para eliminar el gasto con el ID especificado y luego la vuelve a escribir para persistencia de información
+    const gastosJSON = JSON.parse(fs.readFileSync("./data/gastos.json", "utf8"));
+    // console.log("En eliminar, la lista de gastos es: ", gastosJSON);
+    const gastosFiltrados = gastosJSON.gastos.filter((g) => g.id !== id);
+    fs.writeFileSync("./data/gastos.json", JSON.stringify({ gastos: gastosFiltrados }));
+    
+    // console.log(
+    //     "En eliminar, cuantos gastos son antes ",
+    //     gastosJSON.gastos.length
+    //   );
+    //   console.log("En eliminar, la nueva lista es: ", gastosFiltrados);
+    //   console.log(
+    //     "En eliminar, cuantos gastos son ahora ",
+    //     gastosFiltrados.length
+    //   );
+    
+    return gastosFiltrados;
+    
+}
 
-module.exports = { ingresarGastos, listarGastos };//exporto la función
+module.exports = { ingresarGastos, listarGastos, eliminarGasto };//exporto la función
 
