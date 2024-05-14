@@ -1,6 +1,7 @@
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 
+//--------------------------------------------------------------------------------------
 async function ingresarGastos(roommate, descripcion, monto) {
   // console.log('Roommate:', roommate);
   // console.log('Descripción:', descripcion);
@@ -25,6 +26,7 @@ async function ingresarGastos(roommate, descripcion, monto) {
   return gastos;
 }
 
+//--------------------------------------------------------------------------------------
 async function listarGastos() {
   // se lee el archivo json, se convierte en objeto parseandolo, se asigna el objeto a la variable listaRoommates y se devulve al front
 
@@ -34,6 +36,7 @@ async function listarGastos() {
   return gastosData;
 }
 
+//--------------------------------------------------------------------------------------
 async function eliminarGasto(id) {
   //lee la lista de gastos, filtra la lista de gastos para eliminar el gasto con el ID especificado y luego la vuelve a escribir para persistencia de información
   const gastosJSON = JSON.parse(fs.readFileSync("./data/gastos.json", "utf8"));
@@ -57,6 +60,7 @@ async function eliminarGasto(id) {
   return gastosFiltrados;
 }
 
+//--------------------------------------------------------------------------------------
 async function editarGasto(id, data) {
   //almacena la data del archivo gastos.json en una variable y
   //utiliza método map en el arreglo para sobreescribir el objeto
