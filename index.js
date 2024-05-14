@@ -20,13 +20,14 @@ app.listen(PORT, () => {
   console.log("El server ya está listo. Habilitado en puerto ", PORT);
 });
 
-//Importando funcion desde el módulo consultas.js:
+//Importando funciones:
+const { consultarRoommates, agregarRoommate } = require("./roommates.js");
 const {
-  consultarRoommates,
-  //   insertar,
-} = require("./roommates.js");
-
-const { ingresarGastos, listarGastos, eliminarGasto, editarGasto } = require("./gastos.js");
+  ingresarGastos,
+  listarGastos,
+  eliminarGasto,
+  editarGasto,
+} = require("./gastos.js");
 
 //--------------------------------------------------------------------------------------
 //Ruta GET para mostrar el index
@@ -46,35 +47,16 @@ app.get("/", (req, res) => {
 //--------------------------------------------------------------------------------------
 //Ruta para agregar usuario, en la cual se obtienen los datos desde el api randomUser
 app.post("/roommate", async (req, res) => {
-  const { data } = await axios.get("http://randomuser.me/api");
-  //console.log("data: ", data); //imprime por consola la data obtenida
-  //console.log("data result : ", data.results);
-  console.log("data result 0 : ", data.results[0]);
-
-  const randomUser = data.results[0];
-
-  //crear una variable usuario con los valores
-  const usuario = {
-    id: uuidv4().slice(30),
-    nombre: randomUser.name.first,
-    email: randomUser.email,
-    debe: 0,
-    recibe: 0,
-    total: 0,
-  };
-  console.log("usuario : ", usuario);
-
-  //ingresar el usuario al arreglo roommates
-  const { roommates } = JSON.parse(
-    fs.readFileSync("./data/roommates.json", "utf8")
-  );
-
-  roommates.push(usuario);
-
-  //sobreescribe el archivo roommates.json con la nueva data o nuevo usuario
-  fs.writeFileSync("./data/roommates.json", JSON.stringify({ roommates }));
-
-  res.json({ roommates });
+  try {
+    const roommates = await agregarRoommate();
+    console.log("Nuevo roommate agregado:", roommates[roommates.length - 1]);
+    res.json({ roommates });
+  } catch (error) {
+    console.error("Error al agregar un roommate:", error);
+    res
+      .status(500)
+      .json({ error: "Error interno del servidor al agregar un roommate" });
+  }
 });
 
 //--------------------------------------------------------------------------------------
@@ -141,10 +123,11 @@ app.delete("/gasto", async (req, res) => {
     // Llama a la función eliminarGasto para eliminar el gasto con el ID especificado, deposita el resultado en la variable
     const gastosFiltrados = await eliminarGasto(id);
     res.json(gastosFiltrados);
-
   } catch (error) {
     console.error("Error al eliminar el gasto:", error);
-    res.status(500).json({ error: "Error interno del servidor al eliminar el gasto" });
+    res
+      .status(500)
+      .json({ error: "Error interno del servidor al eliminar el gasto" });
   }
 });
 
@@ -152,20 +135,22 @@ app.delete("/gasto", async (req, res) => {
 //Ruta para editar gastos por payload
 app.put("/gasto", async (req, res) => {
   try {
-  //lee las propiedades del payload y del query string, realizando destructuring
-  const { id } = req.query;
-  const { roommate, descripcion, monto } = req.body;
-  //crea la variable gasto
-  // const gasto = { id, roommate, descripcion, monto };
-  // console.log("ruta gasto put para editar, objeto que llega: ", gasto);
+    //lee las propiedades del payload y del query string, realizando destructuring
+    const { id } = req.query;
+    const { roommate, descripcion, monto } = req.body;
+    //crea la variable gasto
+    // const gasto = { id, roommate, descripcion, monto };
+    // console.log("ruta gasto put para editar, objeto que llega: ", gasto);
 
-  // Llama a la función editarGasto para editar el gasto con el ID especificado
-  const data = { roommate, descripcion, monto };
-  const gastosEditados = await editarGasto(id, data);
+    // Llama a la función editarGasto para editar el gasto con el ID especificado
+    const data = { roommate, descripcion, monto };
+    const gastosEditados = await editarGasto(id, data);
 
-  res.json(gastosEditados);
+    res.json(gastosEditados);
   } catch (error) {
     console.error("Error al editar el gasto:", error);
-    res.status(500).json({ error: "Error interno del servidor al editar el gasto" });
+    res
+      .status(500)
+      .json({ error: "Error interno del servidor al editar el gasto" });
   }
 });
