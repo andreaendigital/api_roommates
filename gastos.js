@@ -25,37 +25,57 @@ async function ingresarGastos(roommate, descripcion, monto) {
   return gastos;
 }
 
-
 async function listarGastos() {
-        // se lee el archivo json, se convierte en objeto parseandolo, se asigna el objeto a la variable listaRoommates y se devulve al front
+  // se lee el archivo json, se convierte en objeto parseandolo, se asigna el objeto a la variable listaRoommates y se devulve al front
 
-        const gastosData = JSON.parse(fs.readFileSync("./data/gastos.json", "utf8"));
-        // console.log("Respuesta de gastosData: ", gastosData);
-        // console.log("Respuesta de gastosData.gastos: ", gastosData.gastos);
-    return gastosData;
+  const gastosData = JSON.parse(fs.readFileSync("./data/gastos.json", "utf8"));
+  // console.log("Respuesta de gastosData: ", gastosData);
+  // console.log("Respuesta de gastosData.gastos: ", gastosData.gastos);
+  return gastosData;
 }
-
 
 async function eliminarGasto(id) {
-    //lee la lista de gastos, filtra la lista de gastos para eliminar el gasto con el ID especificado y luego la vuelve a escribir para persistencia de información
-    const gastosJSON = JSON.parse(fs.readFileSync("./data/gastos.json", "utf8"));
-    // console.log("En eliminar, la lista de gastos es: ", gastosJSON);
-    const gastosFiltrados = gastosJSON.gastos.filter((g) => g.id !== id);
-    fs.writeFileSync("./data/gastos.json", JSON.stringify({ gastos: gastosFiltrados }));
-    
-    // console.log(
-    //     "En eliminar, cuantos gastos son antes ",
-    //     gastosJSON.gastos.length
-    //   );
-    //   console.log("En eliminar, la nueva lista es: ", gastosFiltrados);
-    //   console.log(
-    //     "En eliminar, cuantos gastos son ahora ",
-    //     gastosFiltrados.length
-    //   );
-    
-    return gastosFiltrados;
-    
+  //lee la lista de gastos, filtra la lista de gastos para eliminar el gasto con el ID especificado y luego la vuelve a escribir para persistencia de información
+  const gastosJSON = JSON.parse(fs.readFileSync("./data/gastos.json", "utf8"));
+  // console.log("En eliminar, la lista de gastos es: ", gastosJSON);
+  const gastosFiltrados = gastosJSON.gastos.filter((g) => g.id !== id);
+  fs.writeFileSync(
+    "./data/gastos.json",
+    JSON.stringify({ gastos: gastosFiltrados })
+  );
+
+  // console.log(
+  //     "En eliminar, cuantos gastos son antes ",
+  //     gastosJSON.gastos.length
+  //   );
+  //   console.log("En eliminar, la nueva lista es: ", gastosFiltrados);
+  //   console.log(
+  //     "En eliminar, cuantos gastos son ahora ",
+  //     gastosFiltrados.length
+  //   );
+
+  return gastosFiltrados;
 }
 
-module.exports = { ingresarGastos, listarGastos, eliminarGasto };//exporto la función
+async function editarGasto(id, data) {
+  //almacena la data del archivo gastos.json en una variable y
+  //utiliza método map en el arreglo para sobreescribir el objeto
+  //que tenga el mismo ID que los sobreescribidos en la consulta
+  const gastosJSON = JSON.parse(fs.readFileSync("./data/gastos.json", "utf8"));
+  const gastos = gastosJSON.gastos;
+//   console.log("leyendo objeto dento del JSON: ", gastosJSON );
+//   console.log("leyendo gastosJSON.gastos: ", gastos );
 
+    //iterar, identificar id y sobreescribir el correspondiente. Crea un nuevo arreglo con el cambio
+    // gastosEditados = gastos.map((g) => (g.id === id ? gasto : g));
+    const gastosEditados = gastos.map((g) => (g.id === id ? { ...g, ...data } : g));
+
+    console.log("gastosEditados después del map : ", gastosEditados);
+  fs.writeFileSync(
+    "./data/gastos.json",
+    JSON.stringify({ gastos: gastosEditados })
+  );
+  return gastosEditados;
+}
+
+module.exports = { ingresarGastos, listarGastos, eliminarGasto, editarGasto }; //exporto la función
