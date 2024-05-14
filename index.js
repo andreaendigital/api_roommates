@@ -63,81 +63,126 @@ app.post("/roommate", async (req, res) => {
   //sobreescribe el archivo roommates.json con la nueva data o nuevo usuario
   fs.writeFileSync("./data/roommates.json", JSON.stringify({ roommates }));
 
-  res.json({roommates});
+  res.json({ roommates });
 });
 
 //Ruta para enlistar los roomates agregados
 app.get("/roommates", async (req, res) => {
-    try {
+  try {
     //   const registros = await consultar();
     // se lee el archivo json, se convierte en objeto parseandolo, se asigna el objeto a la variable listaRoommates y se devulve al front
-    const roommatesData = JSON.parse(await fs.readFileSync("./data/roommates.json", "utf8"));
+    const roommatesData = JSON.parse(
+      await fs.readFileSync("./data/roommates.json", "utf8")
+    );
     // const listaRoommates = roommatesData.roommates;
 
     console.log("Respuesta de roommatesData: ", roommatesData);
-      console.log("Respuesta de roommatesData.roommates: ", roommatesData.roommates);
-      // res.json(registros);
-      // res.status(200).send(registros);
-      console.log("aqui estoy")
+    console.log(
+      "Respuesta de roommatesData.roommates: ",
+      roommatesData.roommates
+    );
+    // res.json(registros);
+    // res.status(200).send(registros);
+    console.log("aqui estoy");
     //   res.status().json({ listaRoommates });
     res.json(roommatesData);
-    } catch (error) {
-      // console.log("Error: ", error);
-      console.log("Error del get roommates: ", error.message);
-      res.status(500).send(error);
-    }
-  });
+  } catch (error) {
+    // console.log("Error: ", error);
+    console.log("Error del get roommates: ", error.message);
+    res.status(500).send(error);
+  }
+});
 
 //Ruta para ingresar gastos, obteniendo datos del payload (body)
 app.post("/gasto", async (req, res) => {
-   //lee las propiedades del payload que recibe realizando destructuring
-    const { roommate, descripcion, monto} = req.body;
-    // console.log('Roommate:', roommate);
-    // console.log('Descripción:', descripcion);
-    // console.log('Monto:', monto);
-    //crear una variable usuario con los valores obtenidos del destructuring
-       const gasto = {
-        id: uuidv4().slice(30),
-        roommate,
-        descripcion,
-        monto,
-        fecha: new Date() 
-        // new Date(timestamp);
-    };
-    console.log("gasto: ", gasto); //imprime por consola la data obtenida
+  //lee las propiedades del payload que recibe realizando destructuring
+  const { roommate, descripcion, monto } = req.body;
+  // console.log('Roommate:', roommate);
+  // console.log('Descripción:', descripcion);
+  // console.log('Monto:', monto);
+  //crear una variable usuario con los valores obtenidos del destructuring
+  const gasto = {
+    id: uuidv4().slice(30),
+    roommate,
+    descripcion,
+    monto,
+    fecha: new Date(),
+    // new Date(timestamp);
+  };
+  console.log("gasto: ", gasto); //imprime por consola la data obtenida
 
-    //ingresar el gasto al arreglo gastos
-    const { gastos } = JSON.parse(
-      fs.readFileSync("./data/gastos.json", "utf8")
-    );
-  
-    gastos.push(gasto);
-    console.log("gastos, arreglo: ", gastos); //imprime por consola la data obtenida
+  //ingresar el gasto al arreglo gastos
+  const { gastos } = JSON.parse(fs.readFileSync("./data/gastos.json", "utf8"));
 
-    //sobreescribe el archivo gastos.json con el nuevo gasto
-    fs.writeFileSync("./data/gastos.json", JSON.stringify({ gastos }));
-  
-    res.json({gastos});
-  });
+  gastos.push(gasto);
+  console.log("gastos, arreglo: ", gastos); //imprime por consola la data obtenida
 
-  //Ruta para enlistar los gastos agregados
+  //sobreescribe el archivo gastos.json con el nuevo gasto
+  fs.writeFileSync("./data/gastos.json", JSON.stringify({ gastos }));
+
+  res.json({ gastos });
+});
+
+//Ruta para enlistar los gastos agregados
 app.get("/gastos", async (req, res) => {
-    try {
+  try {
     //   const registros = await consultar();
     // se lee el archivo json, se convierte en objeto parseandolo, se asigna el objeto a la variable listaRoommates y se devulve al front
-    const gastosData = JSON.parse(await fs.readFileSync("./data/gastos.json", "utf8"));
+    const gastosData = JSON.parse(
+      await fs.readFileSync("./data/gastos.json", "utf8")
+    );
     // const listaRoommates = roommatesData.roommates;
 
     console.log("Respuesta de gastosData: ", gastosData);
-      console.log("Respuesta de gastosData.gastos: ", gastosData.gastos);
-      // res.json(registros);
-      // res.status(200).send(registros);
-      console.log("aqui estoy en get gastos")
+    console.log("Respuesta de gastosData.gastos: ", gastosData.gastos);
+    // res.json(registros);
+    // res.status(200).send(registros);
+    console.log("aqui estoy en get gastos");
     //   res.status().json({ listaRoommates });
     res.json(gastosData);
-    } catch (error) {
-      // console.log("Error: ", error);
-      console.log("Error del get roommates: ", error.message);
-      res.status(500).send(error);
-    }
-  });
+  } catch (error) {
+    // console.log("Error: ", error);
+    console.log("Error del get roommates: ", error.message);
+    res.status(500).send(error);
+  }
+});
+
+//Ruta para eliminar un gasto por id por query string
+app.delete("/gasto", async (req, res) => {
+  try {
+    const { id } = req.query;
+    // const resultado = await eliminar(id);
+    console.log("id de gasto a eliminar: ", id);
+
+    //lee la lista de gastos, la filtra y luego la vuelve a escribir para persistencia de información
+    const gastosJSON = JSON.parse(
+      fs.readFileSync("./data/gastos.json", "utf8")
+    );
+    console.log("En eliminar, la lista de gastos es: ", gastosJSON);
+    // Filtrar la lista de gastos para eliminar el gasto con el ID especificado
+    const gastosFiltrados = gastosJSON.gastos.filter((g) => g.id !== id);
+    fs.writeFileSync(
+      "./data/gastos.json",
+      JSON.stringify({ gastos: gastosFiltrados })
+    ); // Sobrescribir el archivo gastos.json con la lista filtrada de gastos
+
+    console.log(
+      "En eliminar, cuantos gastos son antes ",
+      gastosJSON.gastos.length
+    );
+    console.log("En eliminar, la nueva lista es: ", gastosFiltrados);
+    console.log(
+      "En eliminar, cuantos gastos son ahora ",
+      gastosFiltrados.length
+    );
+    console.log("gasto eliminado: ", g);
+
+    res.json(gastosFiltrados);
+    // res.status(200).send(registros);
+    //   res.status(200).json(registros);
+  } catch (error) {
+    // console.log("Error: ", error);
+    console.log("Error: ", error.message);
+    res.status(500).send(error);
+  }
+});
