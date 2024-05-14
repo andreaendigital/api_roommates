@@ -186,3 +186,32 @@ app.delete("/gasto", async (req, res) => {
     res.status(500).send(error);
   }
 });
+
+//Ruta para modificar gastos por payload
+app.put("/gasto", (req, res) => {
+//lee las propiedades del payload y del query string, realizando destructuring
+  const { id } = req.query;
+  const { roommate, descripcion, monto } = req.body;
+  //crea la variable gasto
+  const gasto = { id, roommate, descripcion, monto};
+  console.log("ruta gasto put para editar, objeto que llega: ", gasto);
+  //almacena la data del archivo gastos.json en una variable y 
+  //utiliza método map en el arreglo para sobreescribir el objeto 
+  //que tenga el mismo ID que los sobreescribidos en la consulta
+  const gastosJSON = JSON.parse(
+    fs.readFileSync("./data/gastos.json", "utf8")
+  );
+  const gastos = gastosJSON.gastos;
+  console.log("ruta gasto put para editar, leyendo objeto dento del JSON: ", gastosJSON);
+  console.log("ruta gasto put para editar, leyendo gastosJSON.gastos: ", gastos);
+  //iterar, identificar id y sobreescribir el correspondiente. Crea un nuevo arreglo con el cambio
+  gastosEditados = gastos.map((g) => g.id === id?gasto:g );
+  console.log("gastosEditados después del map : ", gastosEditados);
+
+  //Sobreescribe el archivo y notifica que se ha modificado con éxito
+  fs.writeFileSync(
+    "./data/gastos.json",
+    JSON.stringify({ gastos: gastosEditados })
+  ); 
+  res.json(gastosEditados);
+});

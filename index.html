@@ -159,12 +159,11 @@ Articulos de limpieza</textarea
       };
       const getGastos = async () => {
         const res = await fetch("http://localhost:3000/gastos");
-        console.log("gastos respuesta: ", res);
+        // console.log("fn getGatsos: respuesta: ", res);
         const data = await res.json();
-        console.log("etoy aqui 2, data es " , data);
+        // console.log("fn getGastos, data, respuesta json:  " , data);
         gastos = data.gastos;
-        console.log("gastos data, respuesta: ", data);
-        console.log("gastos data.gastos, respuesta: ", data.gastos)
+        // console.log("fn getGastos, gastos = data.gastos: ", data.gastos);
       };
 
       const imprimir = async () => {
@@ -189,7 +188,7 @@ Articulos de limpieza</textarea
               `);
           });
           await getGastos();
-          console.log("entrando a función getGastos");
+          // console.log("entrando a función getGastos dentro de imprimir");
           $("#gastosHistorial").html("");
           gastos.forEach((g) => {
             $("#gastosHistorial").append(`
@@ -251,6 +250,9 @@ Articulos de limpieza</textarea
         const monto = Number($("#montoModal").val());
         await fetch("http://localhost:3000/gasto?id=" + gastoEditing, {
           method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify({
             roommate: roommateSelected,
             descripcion,
