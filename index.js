@@ -22,14 +22,11 @@ app.listen(PORT, () => {
 
 //Importando funcion desde el módulo consultas.js:
 const {
-  consultarRoommates
-//   insertar,
+  consultarRoommates,
+  //   insertar,
 } = require("./roommates.js");
 
-const {
-  ingresarGastos
-//   editar,
-} = require("./gastos.js");
+const { ingresarGastos, listarGastos } = require("./gastos.js");
 
 //--------------------------------------------------------------------------------------
 //Ruta GET para mostrar el index
@@ -103,39 +100,34 @@ app.post("/gasto", async (req, res) => {
     const { roommate, descripcion, monto } = req.body;
 
     // Llama a la función ingresarGastos para agregar el nuevo gasto
-    const gastosActualizados = await ingresarGastos(roommate, descripcion, monto);
+    const gastosActualizados = await ingresarGastos(
+      roommate,
+      descripcion,
+      monto
+    );
 
     // Envía una respuesta JSON con los gastos actualizados
     res.json({ gastos: gastosActualizados });
   } catch (error) {
     console.error("Error al ingresar gasto:", error);
-    res.status(500).json({ error: "Error interno del servidor al ingresar el gasto" });
+    res
+      .status(500)
+      .json({ error: "Error interno del servidor al ingresar el gasto" });
   }
-
 });
 
 //--------------------------------------------------------------------------------------
 //Ruta para enlistar los gastos agregados
 app.get("/gastos", async (req, res) => {
   try {
-    //   const registros = await consultar();
-    // se lee el archivo json, se convierte en objeto parseandolo, se asigna el objeto a la variable listaRoommates y se devulve al front
-    const gastosData = JSON.parse(
-      await fs.readFileSync("./data/gastos.json", "utf8")
-    );
-    // const listaRoommates = roommatesData.roommates;
-
-    console.log("Respuesta de gastosData: ", gastosData);
-    console.log("Respuesta de gastosData.gastos: ", gastosData.gastos);
-    // res.json(registros);
-    // res.status(200).send(registros);
-    console.log("aqui estoy en get gastos");
-    //   res.status().json({ listaRoommates });
-    res.json(gastosData);
+    // Llama a la función listarGastos para obtener la lista de gastos
+    const listaGastos = await listarGastos();
+    res.json(listaGastos);
   } catch (error) {
-    // console.log("Error: ", error);
-    console.log("Error del get roommates: ", error.message);
-    res.status(500).send(error);
+    console.error("Error al listar gastos:", error);
+    res
+      .status(500)
+      .json({ error: "Error interno del servidor al obtener los gastos" });
   }
 });
 

@@ -25,5 +25,17 @@ async function ingresarGastos(roommate, descripcion, monto) {
   return gastos;
 }
 
-module.exports = { ingresarGastos };//exporto la función
+
+async function listarGastos() {
+        // se lee el archivo json, se convierte en objeto parseandolo, se asigna el objeto a la variable listaRoommates y se devulve al front
+
+        const gastosData = JSON.parse(fs.readFileSync("./data/gastos.json", "utf8"));
+        // console.log("Respuesta de gastosData: ", gastosData);
+        // console.log("Respuesta de gastosData.gastos: ", gastosData.gastos);
+    return gastosData;
+  }
+
+
+
+module.exports = { ingresarGastos, listarGastos };//exporto la función
 
