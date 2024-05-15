@@ -18,8 +18,8 @@ async function ingresarGastos(roommate, descripcion, monto) {
   //ingresar el gasto al arreglo gastos:
   const { gastos } = JSON.parse(fs.readFileSync("./data/gastos.json", "utf8"));
   gastos.push(gasto);
-  console.log("gastos, arreglo: ", gastos); //imprime por consola la data obtenida
-
+  //console.log("gastos, arreglo: ", gastos); //imprime por consola la data obtenida
+  console.log("Gasto ingresado correctamente.");
   //sobreescribe el archivo gastos.json con el nuevo gasto:
   fs.writeFileSync("./data/gastos.json", JSON.stringify({ gastos }));
 
@@ -67,14 +67,16 @@ async function editarGasto(id, data) {
   //que tenga el mismo ID que los sobreescribidos en la consulta
   const gastosJSON = JSON.parse(fs.readFileSync("./data/gastos.json", "utf8"));
   const gastos = gastosJSON.gastos;
-//   console.log("leyendo objeto dento del JSON: ", gastosJSON );
-//   console.log("leyendo gastosJSON.gastos: ", gastos );
+  //   console.log("leyendo objeto dento del JSON: ", gastosJSON );
+  //   console.log("leyendo gastosJSON.gastos: ", gastos );
 
-    //iterar, identificar id y sobreescribir el correspondiente. Crea un nuevo arreglo con el cambio
-    // gastosEditados = gastos.map((g) => (g.id === id ? gasto : g));
-    const gastosEditados = gastos.map((g) => (g.id === id ? { ...g, ...data } : g));
-
-    console.log("gastosEditados después del map : ", gastosEditados);
+  //iterar, identificar id y sobreescribir el correspondiente. Crea un nuevo arreglo con el cambio
+  // gastosEditados = gastos.map((g) => (g.id === id ? gasto : g));
+  const gastosEditados = gastos.map((g) =>
+    g.id === id ? { ...g, ...data } : g
+  );
+  console.log("Gastos Actualizados correctamente.");
+  // console.log("gastosEditados después del map : ", gastosEditados);
   fs.writeFileSync(
     "./data/gastos.json",
     JSON.stringify({ gastos: gastosEditados })

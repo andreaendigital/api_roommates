@@ -1,28 +1,3 @@
 {
-  "roommates": [
-    {
-      "id": "d4e28c",
-      "nombre": "Romashka",
-      "email": "romashka.balyuh@example.com",
-      "debe": 0,
-      "recibe": 0,
-      "total": 0
-    },
-    {
-      "id": "9e32f2",
-      "nombre": "Aurélien",
-      "email": "aurelien.gautier@example.com",
-      "debe": 0,
-      "recibe": 0,
-      "total": 0
-    },
-    {
-      "id": "e0d9d5",
-      "nombre": "Mohammad",
-      "email": "mohammad.araya@example.com",
-      "debe": 0,
-      "recibe": 0,
-      "total": 0
-    }
-  ]
+  "roommates": [ ]
 }

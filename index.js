@@ -5,10 +5,10 @@
 // npm i uuid
 // npm i nodemon
 
-const axios = require("axios"); //importación de axios
 const express = require("express"); //importación de express
 const fs = require("fs"); //importando fyle system
-const { v4: uuidv4 } = require("uuid"); //importando uuid
+// const axios = require("axios"); //importación de axios
+// const { v4: uuidv4 } = require("uuid"); //importando uuid
 
 const app = express(); //instanciando express
 const PORT = 3000;
@@ -21,7 +21,7 @@ app.listen(PORT, () => {
 });
 
 //Importando funciones:
-const { consultarRoommates, agregarRoommate } = require("./roommates.js");
+const { consultarRoommates, agregarRoommate, editarRoommates } = require("./roommates.js");
 const {
   ingresarGastos,
   listarGastos,
@@ -50,12 +50,15 @@ app.post("/roommate", async (req, res) => {
   try {
     const roommates = await agregarRoommate();
     console.log("Nuevo roommate agregado:", roommates[roommates.length - 1]);
-    res.json({ roommates });
+    res.status(201).json({ roommates });
   } catch (error) {
-    console.error("Error al agregar un roommate:", error);
+    console.error("Error al agregar un roommate:", error.message);
     res
       .status(500)
-      .json({ error: "Error interno del servidor al agregar un roommate" });
+      .send(
+        "Error interno del servidor al agregar un roommate: ",
+        error.message
+      );
   }
 });
 
@@ -81,6 +84,35 @@ app.post("/gasto", async (req, res) => {
     //lee las propiedades del payload que recibe realizando destructuring
     const { roommate, descripcion, monto } = req.body;
 
+    // Validar que los campos obligatorios estén presentes
+    if (!roommate || !descripcion || !monto) {
+      console.log(
+        "Se requieren todos los campos: roommate, descripcion y monto."
+      );
+      return res
+        .status(400)
+        .json({
+          error:
+            "Se requieren todos los campos: roommate, descripcion y monto.",
+        });
+    }
+
+    if (
+      roommate == undefined ||
+      descripcion == undefined ||
+      monto == undefined
+    ) {
+      console.log(
+        "Se requieren todos los campos: roommate, descripcion y monto."
+      );
+      return res
+        .status(400)
+        .json({
+          error:
+            "Se requieren todos los campos: roommate, descripcion y monto.",
+        });
+    }
+
     // Llama a la función ingresarGastos para agregar el nuevo gasto
     const gastosActualizados = await ingresarGastos(
       roommate,
@@ -89,12 +121,12 @@ app.post("/gasto", async (req, res) => {
     );
 
     // Envía una respuesta JSON con los gastos actualizados
-    res.json({ gastos: gastosActualizados });
+    res.status(201).json({ gastos: gastosActualizados });
   } catch (error) {
-    console.error("Error al ingresar gasto:", error);
+    console.error("Error al ingresar gasto:", error.message);
     res
       .status(500)
-      .json({ error: "Error interno del servidor al ingresar el gasto" });
+      .json("Error interno del servidor al ingresar el gasto:", error.message);
   }
 });
 
@@ -104,12 +136,12 @@ app.get("/gastos", async (req, res) => {
   try {
     // Llama a la función listarGastos para obtener la lista de gastos
     const listaGastos = await listarGastos();
-    res.json(listaGastos);
+    res.status(200).json(listaGastos);
   } catch (error) {
-    console.error("Error al listar gastos:", error);
+    console.error("Error al listar gastos:", error.message);
     res
       .status(500)
-      .json({ error: "Error interno del servidor al obtener los gastos" });
+      .json("Error interno del servidor al listar los gastos: ", error.message);
   }
 });
 
@@ -118,16 +150,16 @@ app.get("/gastos", async (req, res) => {
 app.delete("/gasto", async (req, res) => {
   try {
     const { id } = req.query;
-    console.log("id de gasto a eliminar: ", id);
-
+  
     // Llama a la función eliminarGasto para eliminar el gasto con el ID especificado, deposita el resultado en la variable
     const gastosFiltrados = await eliminarGasto(id);
-    res.json(gastosFiltrados);
+    console.log("Gasto eliminado Exitosamente");
+    res.status(200).json(gastosFiltrados);
   } catch (error) {
-    console.error("Error al eliminar el gasto:", error);
+    console.error("Error al eliminar el gasto:", error.message);
     res
       .status(500)
-      .json({ error: "Error interno del servidor al eliminar el gasto" });
+      .json("Error interno del servidor al eliminar el gasto: ", error.message);
   }
 });
 
@@ -142,15 +174,70 @@ app.put("/gasto", async (req, res) => {
     // const gasto = { id, roommate, descripcion, monto };
     // console.log("ruta gasto put para editar, objeto que llega: ", gasto);
 
+    // Validar que los campos obligatorios estén presentes
+    if (!roommate || !descripcion || !monto) {
+      console.log(
+        "Se requieren todos los campos para editar: roommate, descripcion y monto."
+      );
+      return res
+        .status(400)
+        .json({
+          error:
+            "Se requieren todos los campos para editar: roommate, descripcion y monto.",
+        });
+    }
+
+    if (
+      roommate == undefined ||
+      descripcion == undefined ||
+      monto == undefined
+    ) {
+      console.log(
+        "Se requieren todos los campos para editar: roommate, descripcion y monto."
+      );
+      return res
+        .status(400)
+        .json({
+          error:
+            "Se requieren todos los campos para editar: roommate, descripcion y monto.",
+        });
+    }
+
     // Llama a la función editarGasto para editar el gasto con el ID especificado
     const data = { roommate, descripcion, monto };
     const gastosEditados = await editarGasto(id, data);
 
-    res.json(gastosEditados);
+    res.status(201).json(gastosEditados);
   } catch (error) {
-    console.error("Error al editar el gasto:", error);
+    console.error("Error al editar el gasto: ", error.message);
     res
       .status(500)
-      .json({ error: "Error interno del servidor al editar el gasto" });
+      .json("Error interno del servidor al editar el gasto: ", error.message);
+  }
+});
+
+
+//--------------------------------------------------------------------------------------
+//Ruta para editar roommate 
+app.put("/roommates", async (req, res) => {
+  try {
+    //lee las propiedades del payload y del query string, realizando destructuring
+    // const { id } = req.query; //no requiero id por que se editan todos los roommates 
+    const { roommate, descripcion, monto } = req.body;
+    
+    //crea la variable gasto
+    // const gasto = { id, roommate, descripcion, monto };
+    // console.log("ruta gasto put para editar, objeto que llega: ", gasto);
+
+    // No se validarán campos por que en esta ocasión siempre son entregados
+
+    // Llama a la función editarGasto para editar el gasto con el ID especificado
+    const data = { roommate, descripcion, monto };
+    const roommatesEditados = await editarRoommates(data);
+
+    res.status(201).json(roommatesEditados);
+  } catch (error) {
+    console.error("Error al editar los rommates: ", error.message);
+    res.status(500).json({ error: 'Error interno del servidor al editar los roommates' });
   }
 });

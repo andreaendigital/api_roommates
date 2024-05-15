@@ -150,12 +150,12 @@ Articulos de limpieza</textarea
       const getRoommates = async () => {
         const res = await fetch("http://localhost:3000/roommates");
         const data = await res.json();
-        console.log("en html getRommates res.json data : ", data);
+        // console.log("en html getRommates res.json data : ", data);
         roommates = data.roommates;
-        console.log(
-          "en html getRommates res.json data.roommates : ",
-          data.roommates
-        );
+        // console.log(
+        //   "en html getRommates res.json data.roommates : ",
+        //   data.roommates
+        // );
       };
       const getGastos = async () => {
         const res = await fetch("http://localhost:3000/gastos");
@@ -217,50 +217,83 @@ Articulos de limpieza</textarea
       };
 
       const agregarGasto = async () => {
-        const roommateSelected = $("#roommatesSelect").val();
-        const descripcion = $("#descripcion").val();
-        const monto = Number($("#monto").val());
-        await fetch("http://localhost:3000/gasto", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            roommate: roommateSelected,
-            descripcion,
-            monto,
-          }),
-        });
-        console.log("roommateSelected es: ", roommateSelected);
-        console.log("monto es: ", monto);
-        console.log("descripción es: ", descripcion);
-        imprimir();
+        try {
+          const roommateSelected = $("#roommatesSelect").val();
+          const descripcion = $("#descripcion").val();
+          const monto = Number($("#monto").val());
+          const response = await fetch("http://localhost:3000/gasto", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              roommate: roommateSelected,
+              descripcion,
+              monto,
+            }),
+          });
+          console.log("roommateSelected es: ", roommateSelected);
+          console.log("monto es: ", monto);
+          console.log("descripción es: ", descripcion);
+
+          if (!response.ok) {
+            // Si la respuesta no es exitosa (por ejemplo, un error 400, 500, etc.)
+            const errorMessage = await response.text();
+            throw new Error(errorMessage); // Lanza un error con el mensaje del backend
+          }
+
+          // Cada vez que se agrega un gasto, se editan los roommates: 
+          editarRoommates();
+          imprimir();
+
+        } catch (error) {
+          console.error("Error al crear el gasto:", error);
+
+          // Mostrar el mensaje de error en un alert
+          alert("Error al crear el gasto: " + error.message);
+        }
       };
 
       const deleteGasto = async (id) => {
         await fetch("http://localhost:3000/gasto?id=" + id, {
-          method: "DELETE"
+          method: "DELETE",
         });
         imprimir();
       };
 
       const updateGasto = async () => {
-        const roommateSelected = $("#roommatesSelectModal").val();
-        const descripcion = $("#descripcionModal").val();
-        const monto = Number($("#montoModal").val());
-        await fetch("http://localhost:3000/gasto?id=" + gastoEditing, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            roommate: roommateSelected,
-            descripcion,
-            monto,
-          }),
-        });
-        $("#exampleModal").modal("hide");
-        imprimir();
+        try {
+          const roommateSelected = $("#roommatesSelectModal").val();
+          const descripcion = $("#descripcionModal").val();
+          const monto = Number($("#montoModal").val());
+          const response = await fetch(
+            "http://localhost:3000/gasto?id=" + gastoEditing,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                roommate: roommateSelected,
+                descripcion,
+                monto,
+              }),
+            }
+          );
+          $("#exampleModal").modal("hide");
+          if (!response.ok) {
+            // Si la respuesta no es exitosa (por ejemplo, un error 400, 500, etc.)
+            const errorMessage = await response.text();
+            throw new Error(errorMessage); // Lanza un error con el mensaje del backend
+          }
+          editarRoommates();
+          imprimir();
+        } catch (error) {
+          console.error("Error al editar el gasto:", error);
+
+          // Mostrar el mensaje de error en un alert
+          alert("Error al editar el gasto: " + error.message);
+        }
       };
 
       const editGasto = (id) => {
@@ -270,6 +303,47 @@ Articulos de limpieza</textarea
         $("#descripcionModal").html(descripcion);
         $("#montoModal").val(monto);
       };
+
+      //------------------------------------------------------------------
+      //Funcion Agregada para realizar calculos entre Roommates -------------------------------------------------
+      const editarRoommates = async () => {
+        try {
+          const roommateSelected = $("#roommatesSelect").val();
+          const descripcion = $("#descripcion").val();
+          const monto = Number($("#monto").val());
+          const response = await fetch(
+            "http://localhost:3000/roommates", 
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                roommate: roommateSelected,
+                descripcion,
+                monto,
+              }),
+            }
+          );
+          console.log("editar roommate: roommateSelected es: ", roommateSelected);
+          console.log("editar roommate: monto es: ", monto);
+          console.log("editar roommate: descripción es: ", descripcion);
+
+          if (!response.ok) {
+            // Si la respuesta no es exitosa (por ejemplo, un error 400, 500, etc.)
+            const errorMessage = await response.text();
+            throw new Error(errorMessage); // Lanza un error con el mensaje del backend
+          }
+          imprimir();
+        } catch (error) {
+          console.error("Error al editar el roommate:", error);
+
+          // Mostrar el mensaje de error en un alert
+          alert("Error al editar el roommate: "+ error.message);
+        }
+      };
+
+
 
       imprimir();
     </script>

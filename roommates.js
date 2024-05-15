@@ -1,6 +1,7 @@
 const fs = require("fs");
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
+const { json } = require("express");
 
 //--------------------------------------------------------------------------------------
 async function agregarRoommate() {
@@ -40,6 +41,45 @@ async function consultarRoommates() {
   return roommatesData;
 }
 
-module.exports = { consultarRoommates, agregarRoommate };
+//--------------------------------------------------------------------------------------
+async function editarRoommates(data) {
+  // Extraer las propiedades del objeto 'data'
+  const { roommate, descripcion, monto } = data; 
+  
+  // leer cuantos roommates son en el archivo json
+  const roommatesData = JSON.parse(fs.readFileSync("./data/roommates.json", "utf8"));
+  // console.log("edicion roommates, rommatesData: ", roommatesData);
+  const roommatesLista = roommatesData.roommates;
+  const cantidadRoommates = roommatesLista.length
+  // calcular: el monto ingresado dividido por la cantidad de roommates
+  let montoRepartir = monto/cantidadRoommates;
+
+  // console.log("edicion roommates, roommate: ", roommate);
+  // console.log("edicion roommates, monto: ", monto);
+  // console.log("edicion roommates, cantidad de roommates ", roommatesLista.length);
+  // console.log("edicion roommates, monto a repartir: ", montoRepartir);
+
+  // creo un nuevo arreglo en donde debo: 
+  // asignar a los nombres no coincidentes el montoRepartir en variable "debe"
+  // asignar a el nombre que sí coincide el montoRepartir en variable "recibe"
+  
+  let roommatesActualizados = roommatesLista.map((r) => {
+    // Verificar si el nombre del roommate no es igual al nombreRoommate dado
+    if (r.nombre !== roommate) {
+      // Si no es igual, se actualiza el parámetro 'debe'
+      return { ...r, debe: r.debe + montoRepartir };
+    } else {
+      // Si es igual, se devuelve el roommate sin modificar
+      return { ...r, recibe: r.recibe + montoRepartir };
+    }
+  });
+
+  // luego escribir el archivo json con la nueva información
+  fs.writeFileSync("./data/roommates.json", JSON.stringify({ roommates: roommatesActualizados }));
+  console.log("Roommates actualizados correctamente.");
+  return roommatesActualizados;
+}
+
+module.exports = { consultarRoommates, agregarRoommate, editarRoommates };
 
 // module.exports = {insertar, consultar, eliminar, editar}; //exporto la función
